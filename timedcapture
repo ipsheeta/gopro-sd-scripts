@@ -1,0 +1,52 @@
+hub controller receives time signal from hdd
+write a folder to the hdd with the timestamp
+start script on sd card to record
+wait until script is finished capturing vid and photos
+access each camera's wifi and visit http://10.5.5.9:8080/DCIM to download files
+
+
+continuously ping this address for new files?
+
+Delete Last - http://10.5.5.9/camera/DL?t=[password]&
+
+All (Format) - http://10.5.5.9/camera/DA?t=[password]&
+
+sleep 4
+lu_util exec 'mount --bind /tmp/fuse_d/ /var/www/DCIM/'
+
+lines and their effect
+40 - mode
+50 - mode
+61 - mode
+68 - mode
+78 - mode
+90 - mode
+143 - shutter (took a cam pic) beeped twice
+160 - shutter (took a cam pic) beeped twice
+214 - turn off
+
+
+mirror se input + '\x00\' + ...
+x00 = vid
+x01 = single
+x02 = multi
+x03 = timed
+x07 = wrench
+
+# it seems c9 in the second element is an ascii counter
+turn_on = '\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00' + '\xc9' + 'PW\x01'
+turn_off = '\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00' + '\xc9' + 'PW\x00'
+
+# , in front of PW is an ascii counter
+chg_mode = '\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00'+ ',' + 'PW\x02'
+
+# the 2 digit 98 is a counter
+shutter = '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' + '\x98' + 'SH\x02'
+
+# b9 is a counter, along with heartbeats, it increases a1-9 --> b1-9
+check_mode = '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' + '\xb9' + 'se'
+
+# the output response is an echo of check_mode + '\x00\' + modes + '\x00...'
+modes = { 'x00':'vid', 'x01':'single', 'x02':'multi', 'x03':'timed', 'x07':'wrench' }
+
+
